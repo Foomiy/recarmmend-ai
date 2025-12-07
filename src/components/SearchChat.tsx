@@ -6,9 +6,22 @@ import { Send, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { FilterDropdown, Filters } from '@/components/FilterDropdown';
+
+const initialFilters: Filters = {
+  bodyTypes: [],
+  makes: [],
+  minYear: '',
+  maxYear: '',
+  minPrice: '',
+  maxPrice: '',
+  colors: [],
+  maxMileage: '',
+};
 
 export function SearchChat() {
   const [query, setQuery] = useState('');
+  const [filters, setFilters] = useState<Filters>(initialFilters);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -29,14 +42,26 @@ export function SearchChat() {
     try {
       // Save to search history if logged in
       if (user) {
-        await supabase.from('search_history').insert({
+        await supabase.from('search_history').insert([{
           user_id: user.id,
           query: query.trim(),
-        });
+          filters: JSON.parse(JSON.stringify(filters)),
+        }]);
       }
 
-      // Navigate to results with the query
-      navigate(`/results?q=${encodeURIComponent(query.trim())}`);
+      // Build query params with filters
+      const params = new URLSearchParams();
+      params.set('q', query.trim());
+      if (filters.bodyTypes.length > 0) params.set('bodyTypes', filters.bodyTypes.join(','));
+      if (filters.makes.length > 0) params.set('makes', filters.makes.join(','));
+      if (filters.minYear) params.set('minYear', filters.minYear);
+      if (filters.maxYear) params.set('maxYear', filters.maxYear);
+      if (filters.minPrice) params.set('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+      if (filters.colors.length > 0) params.set('colors', filters.colors.join(','));
+      if (filters.maxMileage) params.set('maxMileage', filters.maxMileage);
+
+      navigate(`/results?${params.toString()}`);
     } catch (error) {
       toast({
         title: "Error",
@@ -68,9 +93,16 @@ export function SearchChat() {
           />
         </div>
         <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Sparkles className="h-4 w-4 text-secondary" />
-            <span>AI-powered recommendations</span>
+          <div className="flex items-center gap-3">
+            <FilterDropdown
+              filters={filters}
+              onFiltersChange={setFilters}
+              onClearFilters={() => setFilters(initialFilters)}
+            />
+            <div className="hidden sm:flex items-center gap-2 text-muted-foreground text-sm">
+              <Sparkles className="h-4 w-4 text-secondary" />
+              <span>AI-powered</span>
+            </div>
           </div>
           <Button 
             variant="hero" 

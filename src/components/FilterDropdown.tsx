@@ -44,7 +44,15 @@ export function FilterDropdown({ filters, onFiltersChange, onClearFilters }: Fil
     filters.maxPrice ||
     filters.maxMileage;
 
-  const toggleArrayFilter = (key: 'bodyTypes' | 'makes' | 'colors', value: string) => {
+  // For body type and make: single selection only
+  const toggleSingleFilter = (key: 'bodyTypes' | 'makes', value: string) => {
+    const current = filters[key];
+    const updated = current.includes(value) ? [] : [value];
+    onFiltersChange({ ...filters, [key]: updated });
+  };
+
+  // For colors: multiple selection allowed
+  const toggleArrayFilter = (key: 'colors', value: string) => {
     const current = filters[key];
     const updated = current.includes(value)
       ? current.filter(v => v !== value)
@@ -70,9 +78,9 @@ export function FilterDropdown({ filters, onFiltersChange, onClearFilters }: Fil
           <DropdownMenuLabel className="text-base font-semibold">Advanced Filters</DropdownMenuLabel>
           <DropdownMenuSeparator />
           
-          {/* Body Type */}
+          {/* Body Type - Single selection */}
           <div className="py-2">
-            <Label className="text-sm font-medium">Body Type</Label>
+            <Label className="text-sm font-medium">Body Type (select one)</Label>
             <div className="flex flex-wrap gap-1 mt-2">
               {BODY_TYPES.map(type => (
                 <Button
@@ -80,7 +88,7 @@ export function FilterDropdown({ filters, onFiltersChange, onClearFilters }: Fil
                   variant={filters.bodyTypes.includes(type) ? 'secondary' : 'outline'}
                   size="sm"
                   className="text-xs h-7"
-                  onClick={() => toggleArrayFilter('bodyTypes', type)}
+                  onClick={() => toggleSingleFilter('bodyTypes', type)}
                 >
                   {type}
                 </Button>
@@ -90,9 +98,9 @@ export function FilterDropdown({ filters, onFiltersChange, onClearFilters }: Fil
 
           <DropdownMenuSeparator />
 
-          {/* Make */}
+          {/* Make - Single selection */}
           <div className="py-2">
-            <Label className="text-sm font-medium">Make</Label>
+            <Label className="text-sm font-medium">Make (select one)</Label>
             <div className="flex flex-wrap gap-1 mt-2">
               {MAKES.map(make => (
                 <Button
@@ -100,7 +108,7 @@ export function FilterDropdown({ filters, onFiltersChange, onClearFilters }: Fil
                   variant={filters.makes.includes(make) ? 'secondary' : 'outline'}
                   size="sm"
                   className="text-xs h-7"
-                  onClick={() => toggleArrayFilter('makes', make)}
+                  onClick={() => toggleSingleFilter('makes', make)}
                 >
                   {make}
                 </Button>

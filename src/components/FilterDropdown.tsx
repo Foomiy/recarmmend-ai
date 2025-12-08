@@ -74,7 +74,7 @@ export function FilterDropdown({ filters, onFiltersChange, onClearFilters }: Fil
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 p-4 bg-popover" align="start">
+        <DropdownMenuContent className="w-80 p-4 bg-popover max-h-[70vh] overflow-y-auto" align="start">
           <DropdownMenuLabel className="text-base font-semibold">Advanced Filters</DropdownMenuLabel>
           <DropdownMenuSeparator />
           

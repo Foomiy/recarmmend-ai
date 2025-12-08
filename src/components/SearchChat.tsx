@@ -8,26 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { FilterDropdown, Filters } from '@/components/FilterDropdown';
 
-const validateCarQuery = async (query: string): Promise<boolean> => {
-  if (!query.trim()) return true;
-  
-  try {
-    const { data, error } = await supabase.functions.invoke('validate-car-query', {
-      body: { query }
-    });
-    
-    if (error) {
-      console.error('Validation error:', error);
-      return true; // Allow on error
-    }
-    
-    return data?.isCarRelated ?? true;
-  } catch (error) {
-    console.error('Validation error:', error);
-    return true; // Allow on error
-  }
-};
-
 const initialFilters: Filters = {
   bodyTypes: [],
   makes: [],
@@ -65,21 +45,6 @@ export function SearchChat() {
         variant: "destructive",
       });
       return;
-    }
-
-    // Validate text input is car-related
-    if (query.trim()) {
-      setIsLoading(true);
-      const isCarRelated = await validateCarQuery(query.trim());
-      if (!isCarRelated) {
-        setIsLoading(false);
-        toast({
-          title: "Query must be car-related",
-          description: "Please describe what kind of car you're looking for. For example: 'I need a reliable family SUV under $35,000'",
-          variant: "destructive",
-        });
-        return;
-      }
     }
 
     setIsLoading(true);

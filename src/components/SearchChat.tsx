@@ -27,11 +27,21 @@ export function SearchChat() {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const hasActiveFilters = 
+    filters.bodyTypes.length > 0 ||
+    filters.makes.length > 0 ||
+    filters.colors.length > 0 ||
+    filters.minYear ||
+    filters.maxYear ||
+    filters.minPrice ||
+    filters.maxPrice ||
+    filters.maxMileage;
+
   const handleSearch = async () => {
-    if (!query.trim()) {
+    if (!query.trim() && !hasActiveFilters) {
       toast({
-        title: "Please enter a description",
-        description: "Tell us what kind of car you're looking for.",
+        title: "Please enter a description or select filters",
+        description: "Tell us what kind of car you're looking for or use the filter options.",
         variant: "destructive",
       });
       return;
